@@ -1,0 +1,76 @@
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--dim:#8b949e;--green:#3fb950;--red:#f85149;--accent:#58a6ff;--gold:#f0c040}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;padding:12px}
+
+/* header */
+.header{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.header .balance{font-size:18px;font-weight:700;color:var(--gold)}
+.header .history{display:flex;gap:3px}
+.header .history .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.header .history .dot.win{background:var(--green)}
+.header .history .dot.lose{background:var(--red)}
+
+/* canvas */
+.game-box{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;margin-bottom:12px}
+canvas{display:block;width:100%;height:320px}
+.mult-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.mult-overlay .mult{font-size:48px;font-weight:800;color:#fff;text-shadow:0 0 20px rgba(88,166,255,.5)}
+.mult-overlay .label{font-size:12px;color:var(--dim);margin-top:4px}
+.rocket-overlay{position:absolute;left:0;top:0;width:44px;height:44px;display:none;pointer-events:none;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 0 10px rgba(88,166,255,.45))}
+
+/* bet panel */
+.bet-panel{display:flex;gap:8px;margin-bottom:12px}
+.bet-panel input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:16px;outline:none}
+.bet-panel input:focus{border-color:var(--accent)}
+.bet-presets{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.bet-presets button{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 14px;color:var(--dim);cursor:pointer;font-size:13px}
+.bet-presets button:hover{border-color:var(--accent);color:var(--text)}
+
+/* action buttons */
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s}
+.btn:active{transform:scale(.97)}
+.btn-bet{background:var(--green);color:#000}
+.btn-bet:hover{background:#46d354}
+.btn-bet:disabled{opacity:.4;cursor:default}
+.btn-cashout{background:var(--gold);color:#000;animation:pulse 1s infinite}
+.btn-cashout:hover{background:#f5d060}
+.btn-wait{background:var(--border);color:var(--dim);cursor:default}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,192,64,.4)}50%{box-shadow:0 0 0 8px rgba(240,192,64,0)}}
+
+/* status */
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:var(--dim)}
+.status-bar .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.status-bar .dot.on{background:var(--green)}
+.status-bar .dot.off{background:var(--red)}
+
+/* history list */
+.history-list{margin-top:12px}
+.history-list h3{font-size:14px;color:var(--dim);margin-bottom:8px}
+.history-item{display:flex;justify-content:space-between;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:4px;font-size:14px}
+.history-item .mult{font-weight:700}
+.history-item .mult.win{color:var(--green)}
+.history-item .mult.lose{color:var(--red)}
+.history-item .bet-info{color:var(--dim)}
+
+/* skin selector */
+.skin-bar{display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin-bottom:8px;-webkit-overflow-scrolling:touch}
+.skin-bar::-webkit-scrollbar{display:none}
+.skin-btn{flex-shrink:0;width:48px;height:48px;border-radius:10px;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:all .15s}
+.skin-btn.active{border-color:var(--accent);background:#1a2332}
+.skin-btn:hover{border-color:var(--accent)}
+.skin-btn img{width:32px;height:32px;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+
+/* bottom nav */
+.nav{display:flex;gap:8px;margin-top:12px}
+.nav button{flex:1;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--dim);cursor:pointer;font-size:13px}
+.nav button:hover{border-color:var(--accent);color:var(--text)}
+
+/* popup */
+.popup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center}
+.popup-overlay.show{display:flex}
+.popup{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:360px;width:90%;text-align:center}
+.popup h2{font-size:20px;margin-bottom:12px}
+.popup p{color:var(--dim);font-size:14px;margin-bottom:16px}
+.popup .btn{margin-bottom:8px}
+.popup .btn:last-child{background:transparent;border:1px solid var(--border);color:var(--dim)}
