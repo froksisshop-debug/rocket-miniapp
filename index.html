@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>🚀 Ракета</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="app" id="app">
+  <!-- header -->
+  <div class="header">
+    <div class="balance-wrap">
+      <span class="balance" id="balance">0 ⭐</span>
+      <button type="button" class="btn-plus" id="btn-topup" onclick="openTopup()">+</button>
+    </div>
+    <div class="header-right">
+      <div class="history" id="history-dots"></div>
+      <button type="button" class="icon-btn" id="btn-lang" onclick="openLang()">RU</button>
+      <button type="button" class="icon-btn hidden" id="btn-admin" onclick="openAdmin()" data-i18n="adminBtn" title="Admin">🛠</button>
+    </div>
+  </div>
+
+  <!-- skin selector -->
+  <div class="skin-bar" id="skin-bar"></div>
+
+  <!-- game canvas -->
+  <div class="game-box">
+    <canvas id="canvas"></canvas>
+    <img class="rocket-overlay" id="rocket-overlay" alt="" draggable="false">
+    <div class="mult-overlay">
+      <div class="mult" id="mult-display">1.00x</div>
+      <div class="label" id="mult-label" data-i18n="placeBet">Сделай ставку</div>
+    </div>
+  </div>
+
+  <!-- bet controls -->
+  <div class="bet-panel">
+    <input type="number" id="bet-input" min="1" max="1000000" value="10" data-i18n-ph="betPlaceholder">
+  </div>
+  <div class="bet-presets" id="bet-presets">
+    <button type="button" onclick="setBet(5)">5</button>
+    <button type="button" onclick="setBet(10)">10</button>
+    <button type="button" onclick="setBet(25)">25</button>
+    <button type="button" onclick="setBet(50)">50</button>
+    <button type="button" onclick="setBet(100)">100</button>
+    <button type="button" onclick="setBet(250)">250</button>
+  </div>
+
+  <!-- action button -->
+  <button type="button" class="btn btn-bet" id="action-btn" onclick="onAction()">СТАВКА</button>
+
+  <!-- status -->
+  <div class="status-bar">
+    <span><span class="dot on" id="status-dot"></span><span id="status-text">На связи</span></span>
+    <span id="min-bet-text"></span>
+  </div>
+</div>
+
+<!-- topup popup -->
+<div class="popup-overlay" id="topup-popup">
+  <div class="popup">
+    <h2 id="topup-title" data-i18n="topupTitle">Пополнение баланса</h2>
+    <p id="topup-msg" data-i18n="topupMsg">Выбери сумму или введи свою.</p>
+    <div class="preset-row" id="topup-presets">
+      <button type="button" onclick="setTopup(10)">10</button>
+      <button type="button" onclick="setTopup(50)">50</button>
+      <button type="button" onclick="setTopup(100)">100</button>
+    </div>
+    <input type="number" class="popup-input" id="topup-input" min="1" max="1000000" data-i18n-ph="topupPlaceholder">
+    <button type="button" class="btn btn-bet" onclick="topupStars()" data-i18n="topupPay">Оплатить</button>
+    <button type="button" class="btn" onclick="closeTopup()" data-i18n="cancel">Отмена</button>
+  </div>
+</div>
+
+<!-- language popup -->
+<div class="popup-overlay" id="lang-popup">
+  <div class="popup">
+    <h2 data-i18n="langTitle">Язык</h2>
+    <button type="button" class="btn lang-opt" onclick="setLang('ru')">Русский</button>
+    <button type="button" class="btn lang-opt" onclick="setLang('uk')">Українська</button>
+    <button type="button" class="btn lang-opt" onclick="setLang('en')">English</button>
+    <button type="button" class="btn" onclick="closeLang()" data-i18n="cancel">Отмена</button>
+  </div>
+</div>
+
+<!-- admin overlay -->
+<div class="popup-overlay admin-overlay" id="admin-overlay">
+  <div class="admin-panel">
+    <div class="admin-head">
+      <button type="button" class="icon-btn" id="admin-back" onclick="adminBack()">←</button>
+      <span id="admin-title" data-i18n="adminBtn">Админка</span>
+      <button type="button" class="icon-btn" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="admin-body" id="admin-body"></div>
+  </div>
+</div>
+
+<!-- Официальная библиотека Telegram. Единственный внешний скрипт, без неё нет window.Telegram.WebApp -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
