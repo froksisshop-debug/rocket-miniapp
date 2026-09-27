@@ -118,6 +118,12 @@ const I18N = {
     clearForce: 'Отменить принуд. краш',
     credit: 'Выдать ⭐',
     debit: 'Списать ⭐',
+    pEdge: 'Шансы (edge)',
+    edgePh: '0 – 0.35',
+    edgeSave: 'Сохранить шансы',
+    edgeReset: 'Сброс шансов',
+    edgeNote: 'Меньше edge → игрок чаще будет получать большие иксы. Пусто = глобальный.',
+    edgeSaved: 'Шансы игрока обновлены',
     amountPh: 'Кол-во ⭐',
     empty: 'Пусто',
     prev: '◀',
@@ -208,6 +214,12 @@ const I18N = {
     clearForce: 'Скасувати примус. краш',
     credit: 'Видати ⭐',
     debit: 'Списати ⭐',
+    pEdge: 'Шанси (edge)',
+    edgePh: '0 – 0.35',
+    edgeSave: 'Зберегти шанси',
+    edgeReset: 'Скинути шанси',
+    edgeNote: 'Менший edge → гравець частіше отримуватиме великі ікси. Порожньо = глобальний.',
+    edgeSaved: 'Шанси гравця оновлено',
     amountPh: 'Кількість ⭐',
     empty: 'Порожньо',
     prev: '◀',
@@ -298,6 +310,12 @@ const I18N = {
     clearForce: 'Clear forced crash',
     credit: 'Credit ⭐',
     debit: 'Debit ⭐',
+    pEdge: 'Odds (edge)',
+    edgePh: '0 – 0.35',
+    edgeSave: 'Save odds',
+    edgeReset: 'Reset odds',
+    edgeNote: 'Lower edge → this player hits bigger multipliers more often. Empty = global.',
+    edgeSaved: 'Player odds updated',
     amountPh: 'Amount ⭐',
     empty: 'Empty',
     prev: '◀',
@@ -644,7 +662,25 @@ function onCrashed(point) {
   multDisplay.style.color = '#f85149';
   setMultLabel('crashedAt', { mult: shown.toFixed(2) });
   setBtnState('idle');
+  burstAtRocket();
   setTimeout(() => resetState(), 2500);
+}
+
+function burstAtRocket() {
+  if (!drawCanvas._rp) return;
+  if (!drawCanvas._parts) drawCanvas._parts = [];
+  const [bx, by] = drawCanvas._rp;
+  for (let i = 0; i < 40; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = 1 + Math.random() * 3;
+    drawCanvas._parts.push({
+      x: bx, y: by,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      life: 1,
+      hue: Math.random() < 0.5 ? 0 : 38
+    });
+  }
 }
 
 function startPolling() {
@@ -691,6 +727,7 @@ function resetState() {
   stopPolling();
   setBtnState('idle');
   setMultLabel('placeBet');
+  if (drawCanvas._parts) drawCanvas._parts = [];
 }
 
 function setBtnState(s) {
@@ -1015,6 +1052,15 @@ async function renderAdminPlayer(body, tid) {
     '<div class="adm-row"><span>' + esc(t('pGames')) + '</span><b>' + p.games + '</b></div>' +
     '<div class="adm-row"><span>' + esc(t('pWagered')) + '</span><b>' + p.wagered + ' ⭐</b></div>' +
     '<div class="adm-row"><span>' + esc(t('pWon')) + '</span><b>' + p.paid + ' ⭐</b></div>' +
+    '<div class="adm-row"><span>' + esc(t('pEdge')) + '</span><b>' +
+      esc(p.edge_override == null || p.edge_override === '' ? t('off') : p.edge_override) + '</b></div>' +
+    '</div>';
+  html += '<div class="adm-field"><span>' + esc(t('pEdge')) + '</span>' +
+    '<input type="number" step="0.01" min="0" max="0.35" id="adm-edge" placeholder="' + esc(t('edgePh')) +
+    '" value="' + esc(p.edge_override == null ? '' : p.edge_override) + '"></div>';
+  html += '<div class="adm-actions">' +
+    '<button type="button" class="adm-btn" onclick="playerSetEdge(' + tid + ')">' + esc(t('edgeSave')) + '</button>' +
+    '<button type="button" class="adm-btn" onclick="playerClearEdge(' + tid + ')">' + esc(t('edgeReset')) + '</button>' +
     '</div>';
   html += '<div class="adm-actions">';
   html += '<button type="button" class="adm-btn" onclick="playerAction(' + tid + ',\'' +
@@ -1045,6 +1091,41 @@ async function playerAction(tid, action) {
 
 async function playerCredit(tid) { await playerAmount(tid, 'credit'); }
 async function playerDebit(tid) { await playerAmount(tid, 'debit'); }
+
+async function playerSetEdge(tid) {
+  const el = document.getElementById('adm-edge');
+  const note = document.getElementById('player-note');
+  const raw = el ? String(el.value).trim() : '';
+  const v = parseFloat(raw);
+  if (raw === '' || isNaN(v) || v < 0 || v > 0.35) {
+    if (note) note.textContent = '❌ ' + t('edgePh');
+    return;
+  }
+  try {
+    await api('/api/admin/player', {
+      method: 'POST',
+      body: JSON.stringify({ telegram_id: tid, action: 'set_edge', edge: v })
+    });
+    if (note) note.textContent = '✅ ' + t('edgeSaved');
+    renderAdmin('player', tid);
+  } catch (e) {
+    if (note) note.textContent = '❌ ' + (e.message || t('error'));
+  }
+}
+
+async function playerClearEdge(tid) {
+  const note = document.getElementById('player-note');
+  try {
+    await api('/api/admin/player', {
+      method: 'POST',
+      body: JSON.stringify({ telegram_id: tid, action: 'set_edge', edge: null })
+    });
+    if (note) note.textContent = '✅ ' + t('edgeSaved');
+    renderAdmin('player', tid);
+  } catch (e) {
+    if (note) note.textContent = '❌ ' + (e.message || t('error'));
+  }
+}
 
 async function playerAmount(tid, action) {
   const el = document.getElementById('adm-amount');
@@ -1235,8 +1316,49 @@ function drawCanvas(ts) {
     }
     ctx.stroke();
 
-    // ракета
+    // ракета + след двигателя
     const rp = flightPoint(clampedProg, w, h);
+    drawCanvas._rp = rp;
+    if (!drawCanvas._parts) drawCanvas._parts = [];
+    if (state === 'flying') {
+      for (let i = 0; i < 2; i++) {
+        drawCanvas._parts.push({
+          x: rp[0] + (Math.random() - 0.5) * 10,
+          y: rp[1] + 18 + Math.random() * 6,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: 0.5 + Math.random() * 1.3,
+          life: 1,
+          hue: 18 + Math.random() * 34
+        });
+      }
+      // факел под ракетой
+      const fl = 10 + Math.sin(ts * 0.03) * 4;
+      const fg = ctx.createLinearGradient(0, rp[1] + 16, 0, rp[1] + 16 + fl + 8);
+      fg.addColorStop(0, 'rgba(88,166,255,0.95)');
+      fg.addColorStop(0.5, 'rgba(240,192,64,0.7)');
+      fg.addColorStop(1, 'rgba(248,81,73,0)');
+      ctx.fillStyle = fg;
+      ctx.beginPath();
+      ctx.moveTo(rp[0] - 7, rp[1] + 16);
+      ctx.lineTo(rp[0] + 7, rp[1] + 16);
+      ctx.lineTo(rp[0], rp[1] + 16 + fl + 8);
+      ctx.closePath();
+      ctx.fill();
+    }
+    const parts = drawCanvas._parts;
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.03;
+      if (p.life <= 0) { parts.splice(i, 1); continue; }
+      ctx.fillStyle = `hsla(${p.hue},100%,62%,${(p.life * 0.75).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2.5 * p.life + 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (parts.length > 260) parts.splice(0, parts.length - 260);
+
     if (selectedSkin.img) {
       showRocketSprite(rp[0], rp[1], 44);
     } else {
@@ -1246,6 +1368,22 @@ function drawCanvas(ts) {
       ctx.textBaseline = 'middle';
       ctx.fillText(selectedSkin.name || '?', rp[0], rp[1]);
     }
+
+    // икс рядом с ракетой
+    const badge = (state === 'crashed' ? (crashPoint || currentMult) : currentMult).toFixed(2) + 'x';
+    ctx.font = 'bold 16px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const bx = Math.min(rp[0] + 26, w - 64);
+    const by = Math.max(rp[1] - 6, 14);
+    const bw = ctx.measureText(badge).width;
+    ctx.fillStyle = 'rgba(10,14,23,0.78)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(bx - 6, by - 12, bw + 12, 24, 6) : ctx.rect(bx - 6, by - 12, bw + 12, 24);
+    ctx.fill();
+    ctx.fillStyle = state === 'crashed' ? '#f85149' :
+      (currentMult >= 2 ? '#3fb950' : currentMult >= 1.5 ? '#f0c040' : '#fff');
+    ctx.fillText(badge, bx, by);
 
     // множитель
     if (state === 'flying') {
