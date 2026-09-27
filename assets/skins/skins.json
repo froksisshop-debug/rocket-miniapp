@@ -1,0 +1,35 @@
+[
+  {
+    "id": "demo_titan",
+    "name": "Титан",
+    "file": "demo_titan.webp",
+    "poster": "demo_titan_poster.png",
+    "animated": true,
+    "frames": 12,
+    "duration": 82,
+    "enabled": true,
+    "created_at": 1790454872
+  },
+  {
+    "id": "demo_aurora",
+    "name": "Аврора",
+    "file": "demo_aurora.webp",
+    "poster": "demo_aurora_poster.png",
+    "animated": true,
+    "frames": 12,
+    "duration": 82,
+    "enabled": true,
+    "created_at": 1790454871
+  },
+  {
+    "id": "demo_comet",
+    "name": "Комета",
+    "file": "demo_comet.webp",
+    "poster": "demo_comet_poster.png",
+    "animated": true,
+    "frames": 12,
+    "duration": 82,
+    "enabled": true,
+    "created_at": 1790454871
+  }
+]
